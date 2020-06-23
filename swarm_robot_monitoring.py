@@ -1,6 +1,6 @@
 import cv2
 
-cap = cv2.VideoCapture('../sample2.mp4')
+cap = cv2.VideoCapture('../sample3.mp4')
 
 if not cap.isOpened():
     print("Error")
@@ -12,7 +12,9 @@ while cap.isOpened():
     if not ret:
         break
 
+    #  detecting movements
     diff = cv2.absdiff(frame1, frame2)
+    final = diff
     gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     _, thresh = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY)
@@ -21,6 +23,7 @@ while cap.isOpened():
 
     coordinates = []
 
+    #  drawing a rectangle around detected movements and calculating the centers of the objects
     for contour in contours:
         if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 1000:
             continue
@@ -28,6 +31,7 @@ while cap.isOpened():
         coordinates = coordinates + [(int(x + w / 2), int(y + h / 2))]
         cv2.rectangle(frame1, (x, y), (x + w, y + h), (0, 255, 0), 1)
 
+    #  drawing a line among moving objects to give a visual representation of the distance
     if len(coordinates) > 1:
         for element in range(len(coordinates)):
             other = element + 1
