@@ -25,7 +25,18 @@ while cap.isOpened():
         if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 1000:
             continue
         (x, y, w, h) = cv2.boundingRect(contour)
+        coordinates = coordinates + [(int(x + w / 2), int(y + h / 2))]
         cv2.rectangle(frame1, (x, y), (x + w, y + h), (0, 255, 0), 1)
+
+    if len(coordinates) > 1:
+        for element in range(len(coordinates)):
+            other = element + 1
+
+            while other < len(coordinates):
+                print(element, other)
+                print(coordinates[element], coordinates[other])
+                other = other + 1
+                cv2.line(frame1, coordinates[element], coordinates[other - 1], (0, 255, 0), thickness=1, lineType=8)
 
     cv2.imshow("frame", frame1)
     frame1 = frame2
