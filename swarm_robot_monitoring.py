@@ -1,8 +1,5 @@
 import cv2
 
-font = cv2.FONT_HERSHEY_SIMPLEX
-
-
 cap = cv2.VideoCapture('../sample2.mp4')
 
 if not cap.isOpened():
@@ -20,8 +17,6 @@ while cap.isOpened():
     contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     coordinates = []
-
-
 
     #  drawing a rectangle around detected movements and calculating the centers of the objects
     for contour in contours:
