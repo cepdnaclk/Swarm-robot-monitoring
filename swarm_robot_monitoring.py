@@ -9,8 +9,8 @@ if not cap.isOpened():
 ret, frame1 = cap.read()
 _, frame2 = cap.read()
 
-lower_blue = np.array([78, 158, 124])
-upper_blue = np.array([138, 255, 255])
+lower_blue = np.array([50, 158, 124])
+upper_blue = np.array([150, 255, 255])
 
 while cap.isOpened():
     if not ret:
@@ -23,7 +23,8 @@ while cap.isOpened():
 
     #  detecting edges
     edges = cv2.Canny(filtered, 100, 200)
-    contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    dilated = cv2.dilate(edges, None, iterations=10)
+    contours, _ = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     coordinates = []
 
