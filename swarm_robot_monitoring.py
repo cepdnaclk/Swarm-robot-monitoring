@@ -10,8 +10,13 @@ if not cap.isOpened():
 ret, frame1 = cap.read()
 _, frame2 = cap.read()
 
-lower_blue = np.array([50, 158, 124])
-upper_blue = np.array([150, 255, 255])
+lowerRobot = np.array([50, 158, 124])
+upperRobot = np.array([150, 255, 255])
+
+lowerArena = np.array([0, 0, 239])
+upperArena = np.array([0, 0, 239])
+
+robotNumber = 1
 
 window_name = 'Image'
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -35,20 +40,36 @@ while cap.isOpened():
     if not ret:
         break
 
-    # filtering blue color
+    # filtering color of robot and arena color
     hsv = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, lower_blue, upper_blue)
-    filtered = cv2.bitwise_and(frame1, frame1, mask=mask)
+    maskRobot = cv2.inRange(hsv, lowerRobot, upperRobot)
+    maskOfArena = cv2.inRange(hsv, lowerArena, upperArena)
+    filteredRobot = cv2.bitwise_and(frame1, frame1, mask=maskRobot)
+    filteredArena = cv2.bitwise_and(frame1, frame1, mask=maskOfArena)
 
-    #  detecting edges
-    edges = cv2.Canny(filtered, 100, 200)
-    dilated = cv2.dilate(edges, None, iterations=10)
-    contours, _ = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    # detecting edges
+    edgesOfRobot = cv2.Canny(filteredRobot, 100, 200)
+    gray = cv2.cvtColor(filteredArena, cv2.COLOR_BGR2GRAY)
+    padded = np.pad(gray, (2, 2), 'constant')
+    edgesOfArena = cv2.Canny(padded, 100, 200)
+    dilatedRobot = cv2.dilate(edgesOfRobot, None, iterations=10)
+    dilatedArena = cv2.dilate(edgesOfArena, None, iterations=2)
+    contoursOfRobot, _ = cv2.findContours(dilatedRobot, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    contoursOfArena, _ = cv2.findContours(dilatedArena, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
-    #  drawing a rectangle around detected movements and calculating the centers of the objects
-    for contour in contours:
+    #  drawing a rectangle around Arena
+    areas = [cv2.contourArea(c) for c in contoursOfArena]
+    max_index = np.argmax(areas)
+    cnt = contoursOfArena[max_index]
+    (x, y, w, h) = cv2.boundingRect(cnt)
+    cv2.rectangle(frame1, (x, y), (x + w-5, y + h-5), (0, 0, 255), 2)
+
+    #  drawing a rectangle around robots and calculating the centers of the objects
+    for contour in contoursOfRobot:
         if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 5000:
             continue
+
+        robotNumber = robotNumber + 1
 
         (x, y, w, h) = cv2.boundingRect(contour)
         coordinates = coordinates + [(int(x + w / 2), int(y + h / 2))]
@@ -64,6 +85,7 @@ while cap.isOpened():
                 cv2.line(frame1, coordinates[element], coordinates[other-1], (0, 255, 0), thickness=1, lineType=8)
                 disAmongRob = disAmongRob + [disCal(coordinates[element], coordinates[other - 1])]
 
+    #  displaying the distances
     frame1 = cv2.putText(frame1, string + str(disAmongRob), org, font, fontScale, color, thickness, cv2.LINE_AA)
     cv2.imshow("frame", frame1)
     frame1 = frame2
