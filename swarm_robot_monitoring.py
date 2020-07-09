@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import selector as s
 
 cap = cv2.VideoCapture('../test.mp4')
 
@@ -10,11 +11,16 @@ if not cap.isOpened():
 ret, frame1 = cap.read()
 _, frame2 = cap.read()
 
-lowerRobot = np.array([50, 158, 124])
-upperRobot = np.array([150, 255, 255])
+s.setValues()
 
-lowerArena = np.array([0, 0, 239])
-upperArena = np.array([0, 0, 239])
+print(s.lRob, s.uRob)
+print(s.lAr, s.uAr)
+
+lowerRobot = s.lRob
+upperRobot = s.uRob
+
+lowerArena = s.lAr
+upperArena = s.uAr
 
 robotNumber = 1
 
@@ -35,6 +41,7 @@ def disCal(first, second):
 
 
 while cap.isOpened():
+    rNum = 0
     coordinates = []
     disAmongRob = []
     if not ret:
@@ -69,11 +76,12 @@ while cap.isOpened():
         if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 5000:
             continue
 
-        robotNumber = robotNumber + 1
+        rNum = rNum + 1
 
         (x, y, w, h) = cv2.boundingRect(contour)
         coordinates = coordinates + [(int(x + w / 2), int(y + h / 2))]
         cv2.rectangle(frame1, (x, y), (x + w, y + h), (0, 255, 0), 1)
+        frame1 = cv2.putText(frame1, "robot " + str(rNum), (x + 1, y + 1), font, fontScale, color, thickness, cv2.LINE_AA)
 
     #  drawing a line among moving objects to give a visual representation of the distance
     if len(coordinates) > 1:
