@@ -4,7 +4,8 @@ import math
 import selector as s
 import testframe as tf
 
-path = '../sample3.mp4'
+# path of the video  file
+path = '../test.mp4'
 
 cap = cv2.VideoCapture(path)
 
@@ -39,6 +40,7 @@ thickness = 1
 string = "Distance among robots in px : "
 
 
+# this function use to calculate the distance between two coordinates.
 def disCal(first, second):
     lenOne = first[0] - second[0]
     lenTwo = first[1] - second[1]
@@ -46,6 +48,7 @@ def disCal(first, second):
     return math.floor(outPut)
 
 
+#  main
 while cap.isOpened():
     rNum = 0
     coordinates = []
@@ -53,7 +56,7 @@ while cap.isOpened():
     if not ret:
         break
 
-    # filtering color of robot and arena color
+    # filtering color of robot and color of the arena
     hsv = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)
     maskRobot = cv2.inRange(hsv, lowerRobot, upperRobot)
     maskOfArena = cv2.inRange(hsv, lowerArena, upperArena)
@@ -76,13 +79,13 @@ while cap.isOpened():
         max_index = np.argmax(areas)
         cnt = contoursOfArena[max_index]
         (x, y, w, h) = cv2.boundingRect(cnt)
-        cv2.rectangle(frame1, (x, y), (x + w-5, y + h-5), (0, 0, 255), 2)
+        cv2.rectangle(frame1, (x, y), (x + w - 5, y + h - 5), (0, 0, 255), 2)
     except ValueError:
         pass
 
     #  drawing a rectangle around robots and calculating the centers of the objects
     for contour in contoursOfRobot:
-        if cv2.contourArea(contour) < 20 or cv2.contourArea(contour) > 5000:
+        if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 5000:
             continue
 
         rNum = rNum + 1
@@ -90,16 +93,17 @@ while cap.isOpened():
         (x, y, w, h) = cv2.boundingRect(contour)
         coordinates = coordinates + [(int(x + w / 2), int(y + h / 2))]
         cv2.rectangle(frame1, (x, y), (x + w, y + h), (0, 255, 0), 1)
-        frame1 = cv2.putText(frame1, "robot " + str(rNum), (x + 1, y + 1), font, fontScale, color, thickness, cv2.LINE_AA)
+        frame1 = cv2.putText(frame1, "robot " + str(rNum), (x + 1, y + 1), font, fontScale, color, thickness,
+                             cv2.LINE_AA)
 
     #  drawing a line among moving objects to give a visual representation of the distance
     if len(coordinates) > 1:
         for element in range(len(coordinates)):
-            other = element+1
+            other = element + 1
 
             while other < len(coordinates):
                 other = other + 1
-                cv2.line(frame1, coordinates[element], coordinates[other-1], (0, 255, 0), thickness=1, lineType=8)
+                cv2.line(frame1, coordinates[element], coordinates[other - 1], (0, 255, 0), thickness=1, lineType=8)
                 disAmongRob = disAmongRob + [disCal(coordinates[element], coordinates[other - 1])]
 
     #  displaying the distances

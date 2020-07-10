@@ -2,13 +2,17 @@ from tkinter import *
 import cv2
 import numpy as np
 
+# This variables stores values of the UI
 v1 = v2 = v3 = v4 = v5 = v6 = 0
 
+# For color filtering. Updates during the runtime.
 lRob = np.array([50, 50, 50])
 uRob = np.array([100, 100, 100])
 lAr = np.array([50, 50, 50])
 uAr = np.array([200, 200, 200])
 
+
+# Use to test the color filtering accuracy with selected values.
 def valuesTest():
     import testframe as tf
     testImg = tf.frame
@@ -21,6 +25,8 @@ def valuesTest():
     cv2.waitKey()
     cv2.destroyAllWindows()
 
+
+# Storing selected values for robots.
 def setRobotValues():
     global lRob
     global uRob
@@ -31,6 +37,7 @@ def setRobotValues():
     print(lRob, uRob)
 
 
+# Storing selected values for the arena.
 def setArenaValues():
     global lAr
     global uAr
@@ -41,6 +48,7 @@ def setArenaValues():
     print(lAr, uAr)
 
 
+# main file calls this to initialize the UI.
 def setValues():
 
     master = Tk()
