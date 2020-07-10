@@ -2,8 +2,6 @@ from tkinter import *
 import cv2
 import numpy as np
 
-testImg = cv2.imread("../test.jpg")
-
 v1 = v2 = v3 = v4 = v5 = v6 = 0
 
 lRob = np.array([50, 50, 50])
@@ -12,12 +10,14 @@ lAr = np.array([50, 50, 50])
 uAr = np.array([200, 200, 200])
 
 def valuesTest():
+    import testframe as tf
+    testImg = tf.frame
     lowerRobot = np.array([v1, v2, v3])
     upperRobot = np.array([v4, v5, v6])
     hsv = cv2.cvtColor(testImg, cv2.COLOR_BGR2HSV)
     maskRobot = cv2.inRange(hsv, lowerRobot, upperRobot)
     filteredRobot = cv2.bitwise_and(testImg, testImg, mask=maskRobot)
-    cv2.imshow("test", filteredRobot)
+    cv2.imshow("press 'q' to close", filteredRobot)
     cv2.waitKey()
     cv2.destroyAllWindows()
 
@@ -36,7 +36,6 @@ def setArenaValues():
     global uAr
     lAr = np.array([v1, v2, v3])
     uAr = np.array([v4, v5, v6])
-    arenaValues = [v1, v2, v3, v4, v5, v6]
     print("values for arena are set")
     print(v1, v2, v3, v4, v5, v6)
     print(lAr, uAr)
@@ -92,9 +91,13 @@ def setValues():
 
         valuesTest()
 
+    def des():
+        master.destroy()
+
     Button(master, text='Test For Robots/Arena', bg='yellow', command=setVs).pack()
     Button(master, text='Set For Robots ', bg='orange', command=setRobotValues).pack()
     Button(master, text='Set For Arena ', bg='orange', command=setArenaValues).pack()
+    Button(master, text='proceed', bg='red', command=des).pack()
 
     mainloop()
 

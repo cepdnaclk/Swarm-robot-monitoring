@@ -2,14 +2,20 @@ import cv2
 import numpy as np
 import math
 import selector as s
+import testframe as tf
 
-cap = cv2.VideoCapture('../test.mp4')
+path = '../sample3.mp4'
+
+cap = cv2.VideoCapture(path)
 
 if not cap.isOpened():
     print("Error")
 
 ret, frame1 = cap.read()
 _, frame2 = cap.read()
+
+tf.testFrame(path)
+tf.troubleShooter()
 
 s.setValues()
 
@@ -65,15 +71,18 @@ while cap.isOpened():
     contoursOfArena, _ = cv2.findContours(dilatedArena, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
     #  drawing a rectangle around Arena
-    areas = [cv2.contourArea(c) for c in contoursOfArena]
-    max_index = np.argmax(areas)
-    cnt = contoursOfArena[max_index]
-    (x, y, w, h) = cv2.boundingRect(cnt)
-    cv2.rectangle(frame1, (x, y), (x + w-5, y + h-5), (0, 0, 255), 2)
+    try:
+        areas = [cv2.contourArea(c) for c in contoursOfArena]
+        max_index = np.argmax(areas)
+        cnt = contoursOfArena[max_index]
+        (x, y, w, h) = cv2.boundingRect(cnt)
+        cv2.rectangle(frame1, (x, y), (x + w-5, y + h-5), (0, 0, 255), 2)
+    except ValueError:
+        pass
 
     #  drawing a rectangle around robots and calculating the centers of the objects
     for contour in contoursOfRobot:
-        if cv2.contourArea(contour) < 50 or cv2.contourArea(contour) > 5000:
+        if cv2.contourArea(contour) < 20 or cv2.contourArea(contour) > 5000:
             continue
 
         rNum = rNum + 1
@@ -95,7 +104,7 @@ while cap.isOpened():
 
     #  displaying the distances
     frame1 = cv2.putText(frame1, string + str(disAmongRob), org, font, fontScale, color, thickness, cv2.LINE_AA)
-    cv2.imshow("frame", frame1)
+    cv2.imshow("Swarm Robot Monitoring( Press 'q' to stop)", frame1)
     frame1 = frame2
     ret, frame2 = cap.read()
 
